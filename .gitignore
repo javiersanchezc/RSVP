@@ -1,0 +1,17 @@
+# Entornos virtuales y caché de Python
+venv/
+backend/venv/
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Modelos pesados descargables automáticamente (Kokoro ONNX > 300MB)
+backend/models/
+
+# Archivos de audio generados temporalmente
+backend/outputs/
+output_pronunciation.mp3
+
+# Archivos del sistema
+.DS_Store
+Thumbs.db

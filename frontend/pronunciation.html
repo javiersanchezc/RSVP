@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Entrenador de Pronunciación & Shadowing</title>
+    <!-- Google Fonts (Inter) -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css?v=2.5">
+    <link rel="stylesheet" href="pronunciation.css?v=2.5">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Barra de Navegación Superior -->
+        <header class="pronunciation-header">
+            <div class="header-top">
+                <a href="/" class="nav-back-btn" title="Volver a la lectura rápida">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+                    <span>Lector RSVP</span>
+                </a>
+                <span class="badge-app">Audio & Shadowing</span>
+            </div>
+            <h1>Pronunciation<span class="highlight">Trainer</span></h1>
+            <p>Genera audios con repetición espaciada y practica dicción en tiempo real.</p>
+        </header>
+
+        <main>
+            <!-- SECCIÓN HISTORIAL: Lecciones guardadas y progreso de escucha -->
+            <section class="glass-panel history-section" id="historySection">
+                <div class="section-title-row">
+                    <div style="display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
+                        <h2>📚 Historial de Práctica</h2>
+                        <span id="historyCountBadge" class="count-badge">0 guardadas</span>
+                    </div>
+                    <div class="history-header-actions" style="display: flex; align-items: center; gap: 0.5rem;">
+                        <button id="btnToggleHistory" class="btn subtle-btn">Ocultar</button>
+                        <button id="btnRefreshHistory" class="btn icon-btn" title="Actualizar historial">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="history-grid" id="historyGrid">
+                    <p class="empty-history-notice">Aún no tienes lecciones en el historial. Tu progreso se guardará automáticamente para que puedas retomar en cualquier momento.</p>
+                </div>
+            </section>
+
+            <!-- SECCIÓN 1: Entrada de Texto / Lección Markdown -->
+            <section class="glass-panel" id="inputSection">
+                <div class="section-title-row">
+                    <h2>1. Lección en Markdown o Texto</h2>
+
+                    <div class="presets-container">
+                        <span class="presets-label">Plantillas:</span>
+                        <button class="preset-pill" id="btnPresetPolice">🚔 Radio [POLICE 1A]</button>
+                        <button class="preset-pill" id="btnPresetEnglish">🇬🇧 Conversación</button>
+                        <button class="preset-pill" id="btnPresetPhrasal">🇬🇧 Phrasal Verbs</button>
+                        <button class="preset-pill" id="btnPresetSpanish">🇪🇸 Trabalenguas</button>
+                    </div>
+                </div>
+
+                <div class="input-container">
+                    <textarea id="markdownInput" placeholder="Pega aquí tu archivo Markdown o texto de lección...
+Ejemplo de diálogo fluido:
+[POLICE 1A] Suspect is heading North on 5th Avenue.
+[DISPATCH]: Copy that Unit 1A, all units be advised.
+[POLICE 1A] - Suspect vehicle has turned into Elm Street.
+[DISPATCH] Backup is two minutes away [10-4]."></textarea>
+
+                    <div class="file-upload-bar">
+                        <label for="mdFileInput" class="btn secondary file-btn">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                            Subir archivo (.md, .txt)
+                        </label>
+                        <input type="file" id="mdFileInput" accept=".md,.markdown,.txt" style="display: none;">
+                        <span id="mdFileNameDisplay" class="file-name-text">Ningún archivo cargado</span>
+                    </div>
+
+                    <div class="options-bar">
+                        <div class="checkboxes-group" style="display: flex; flex-direction: column; gap: 0.4rem;">
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="chkCleanBrackets" checked>
+                                <span><strong>Omitir etiquetas [POLICE 1A]</strong> (empieza a procesar directamente después para mayor fluidez)</span>
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="chkCleanBullets" checked>
+                                <span>Eliminar numeración y viñetas (1., -, •)</span>
+                            </label>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+                            <input type="text" id="startMarkerInput" placeholder="Marcador de inicio (ej: [POLICE 1A])" style="background: rgba(15, 17, 21, 0.6); border: 1px solid var(--glass-border); border-radius: 8px; padding: 0.45rem 0.75rem; color: var(--text-primary); font-size: 0.8rem; width: 220px;" title="Opcional: Si escribes un marcador, solo se procesará el contenido que esté después de ese marcador en el documento.">
+                            <button id="btnParseText" class="btn primary">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                                Procesar Frases
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+            </section>
+
+            <!-- SECCIÓN 2: Configuración de Audio & Voces -->
+            <section class="glass-panel" id="configSection">
+                <h2>2. Configuración de Pronunciación y Pausas</h2>
+
+                <div class="config-grid">
+                    <!-- Selector de Voz -->
+                    <div class="control-card">
+                        <label for="voiceSelect">Voz y Acento</label>
+                        <div class="select-with-preview">
+                            <select id="voiceSelect">
+                                <optgroup label="🧠 Kokoro TTS (Neural Local - Prioridad Inglés)">
+                                    <option value="kokoro-af_heart" selected>🧠 [Kokoro] af_heart (Inglés US - Femenino, Recomendada ⭐)</option>
+                                    <option value="kokoro-af_bella">🧠 [Kokoro] af_bella (Inglés US - Femenino)</option>
+                                    <option value="kokoro-af_nicole">🧠 [Kokoro] af_nicole (Inglés US - Femenino)</option>
+                                    <option value="kokoro-af_sarah">🧠 [Kokoro] af_sarah (Inglés US - Femenino)</option>
+                                    <option value="kokoro-am_adam">🧠 [Kokoro] am_adam (Inglés US - Masculino)</option>
+                                    <option value="kokoro-am_michael">🧠 [Kokoro] am_michael (Inglés US - Masculino)</option>
+                                    <option value="kokoro-am_eric">🧠 [Kokoro] am_eric (Inglés US - Masculino)</option>
+                                    <option value="kokoro-bf_emma">🧠 [Kokoro] bf_emma (Inglés UK - Femenino)</option>
+                                    <option value="kokoro-bf_isabella">🧠 [Kokoro] bf_isabella (Inglés UK - Femenino)</option>
+                                    <option value="kokoro-bm_george">🧠 [Kokoro] bm_george (Inglés UK - Masculino)</option>
+                                    <option value="kokoro-bm_lewis">🧠 [Kokoro] bm_lewis (Inglés UK - Masculino)</option>
+                                    <option value="kokoro-ef_dora">🧠 [Kokoro] ef_dora (Español - Femenino)</option>
+                                    <option value="kokoro-em_alex">🧠 [Kokoro] em_alex (Español - Masculino)</option>
+                                </optgroup>
+                                <optgroup label="Inglés (Microsoft Neural)">
+                                    <option value="en-US-JennyNeural">Inglés US - Jenny (Femenino, Natural)</option>
+                                    <option value="en-US-GuyNeural">Inglés US - Guy (Masculino, Natural)</option>
+                                    <option value="en-US-AriaNeural">Inglés US - Aria (Femenino)</option>
+                                    <option value="en-GB-SoniaNeural">Inglés UK - Sonia (Británico)</option>
+                                    <option value="en-GB-RyanNeural">Inglés UK - Ryan (Británico)</option>
+                                </optgroup>
+                                <optgroup label="Español (Microsoft Neural)">
+                                    <option value="es-ES-ElviraNeural">Español España - Elvira</option>
+                                    <option value="es-ES-AlvaroNeural">Español España - Álvaro</option>
+                                    <option value="es-MX-DaliaNeural">Español México - Dalia</option>
+                                    <option value="es-MX-JorgeNeural">Español México - Jorge</option>
+                                </optgroup>
+                                <optgroup label="Google TTS">
+                                    <option value="gtts-en">Google TTS - Inglés US</option>
+                                    <option value="gtts-en-uk">Google TTS - Inglés UK</option>
+                                    <option value="gtts-es">Google TTS - Español</option>
+                                    <option value="gtts-fr">Google TTS - Francés</option>
+                                </optgroup>
+                                <optgroup label="Windows Offline (SAPI)">
+                                    <option value="Microsoft Zira Desktop">Windows Zira (Inglés Offline)</option>
+                                    <option value="Microsoft Helena Desktop">Windows Helena (Español Offline)</option>
+                                </optgroup>
+                            </select>
+                            <button id="btnTestVoice" class="btn icon-btn" title="Escuchar muestra de voz">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path></svg>
+                            </button>
+                        </div>
+                        <span class="control-hint">Se aplica respaldo automático si un motor no responde.</span>
+                    </div>
+
+                    <!-- Repeticiones por Frase -->
+                    <div class="control-card">
+                        <div class="label-with-value">
+                            <label for="repetitionsSlider">Repeticiones por frase</label>
+                            <span class="value-pill" id="repetitionsValue">3x</span>
+                        </div>
+                        <input type="range" id="repetitionsSlider" min="1" max="6" step="1" value="3">
+                        <span class="control-hint">Número de veces que escucharás cada frase.</span>
+                    </div>
+
+                    <!-- Pausa entre Repeticiones (Shadowing) -->
+                    <div class="control-card">
+                        <div class="label-with-value">
+                            <label for="silenceRepSlider">Pausa para repetir (Shadowing)</label>
+                            <span class="value-pill" id="silenceRepValue">1.5 seg</span>
+                        </div>
+                        <input type="range" id="silenceRepSlider" min="500" max="5000" step="250" value="1500">
+                        <span class="control-hint">Tiempo en silencio para que tú repitas la frase en voz alta.</span>
+                    </div>
+
+                    <!-- Pausa entre Frases Distintas -->
+                    <div class="control-card">
+                        <div class="label-with-value">
+                            <label for="silencePhraseSlider">Pausa entre frases distintas</label>
+                            <span class="value-pill" id="silencePhraseValue">2.0 seg</span>
+                        </div>
+                        <input type="range" id="silencePhraseSlider" min="500" max="5000" step="250" value="2000">
+                        <span class="control-hint">Silencio antes de pasar al siguiente enunciado.</span>
+                    </div>
+
+                    <!-- Velocidad de Reproducción (Estilo YouTube) -->
+                    <div class="control-card">
+                        <div class="label-with-value">
+                            <label for="speedConfigSlider">Velocidad de reproducción</label>
+                            <span class="value-pill" id="speedConfigValue">1.0x (Normal)</span>
+                        </div>
+                        <input type="range" id="speedConfigSlider" min="0.5" max="2.0" step="0.25" value="1.0">
+                        <span class="control-hint">0.75x para escuchar mejor o 1.25x / 1.5x para agilidad auditiva.</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECCIÓN 3: Vista de Frases y Modo de Práctica -->
+            <section class="glass-panel" id="phrasesSection">
+                <div class="phrases-header-row">
+                    <div>
+                        <h2>3. Frases Detectadas</h2>
+                        <span id="phraseCountBadge" class="count-badge">0 frases</span>
+                    </div>
+                    <div class="phrases-actions">
+                        <button id="btnToggleListHeight" class="btn subtle-btn" title="Expandir o compactar altura de la lista">↕️ Expandir Lista</button>
+                        <button id="btnClearPhrases" class="btn subtle-btn">Limpiar Todo</button>
+                        <button id="btnAddPhraseModalBtn" class="btn secondary small-btn">+ Agregar Frase</button>
+                    </div>
+                </div>
+
+                <!-- Lista de frases interactivas -->
+                <div class="phrases-list" id="phrasesList">
+                    <p class="empty-phrases-notice">Ingresa o pega un texto arriba y presiona "Procesar Frases" para comenzar.</p>
+                </div>
+
+                <!-- Acciones Principales -->
+                <div class="execution-modes-card" id="executionControls">
+                    <div class="mode-tabs">
+                        <button class="mode-tab active" id="tabLivePractice">🎧 Práctica en Vivo (Shadowing)</button>
+                        <button class="mode-tab" id="tabExportMp3">💾 Exportar Archivo MP3</button>
+                    </div>
+
+                    <!-- PANE 1: Reproductor Shadowing en Vivo -->
+                    <div class="mode-pane active" id="paneLivePractice">
+                        <div class="shadowing-player" id="shadowingPlayer">
+                            <!-- Botón flotante para salir del modo maximizado -->
+                            <button id="btnCloseMaximized" class="btn close-maximized-btn hidden" title="Salir de pantalla completa (Esc o F)">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                                <span>Salir</span>
+                            </button>
+
+                            <div class="player-status-badge" id="playerStatusBadge">Listo para practicar</div>
+                            
+                            <!-- Tarjeta de Frase Activa -->
+                            <div class="active-phrase-box" id="activePhraseBox">
+                                <div class="active-phrase-meta-row">
+                                    <span class="active-phrase-index" id="activePhraseIndex">Frase 1 de 1</span>
+                                    
+                                    <div class="active-phrase-actions">
+                                        <!-- Control de escala de texto -->
+                                        <div class="font-scale-group" title="Ajustar tamaño de texto">
+                                            <button id="btnTextSmaller" class="scale-btn" title="Texto más pequeño (A-)">A-</button>
+                                            <button id="btnTextReset" class="scale-btn scale-val" title="Restablecer tamaño">100%</button>
+                                            <button id="btnTextLarger" class="scale-btn" title="Texto más grande (A+)">A+</button>
+                                        </div>
+
+                                        <span class="history-sync-indicator hidden" id="historySyncIndicator" title="Progreso guardado automáticamente en el historial">
+                                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#34c759" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
+                                            <span id="syncText">Guardado</span>
+                                        </span>
+
+                                        <!-- Botón Maximizar / Restaurar -->
+                                        <button id="btnMaximizePlayer" class="btn icon-btn maximize-player-btn" title="Maximizar visor de texto (F)">
+                                            <svg id="maximizeIcon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"></path>
+                                            </svg>
+                                            <svg id="minimizeIcon" class="hidden" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <path d="M4 14h6v6M20 10h-6V4M14 10l7-7M10 14l-7 7"></path>
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="session-resume-tag hidden" id="sessionResumeTag">
+                                    <span>📍 Retomando en frase <strong id="resumePhraseNum">1</strong></span>
+                                </div>
+                                <p class="active-phrase-text" id="activePhraseText">Presiona Iniciar Práctica para empezar</p>
+
+                                
+                                <!-- Barra de progreso de repeticiones y temporizador de shadowing -->
+                                <div class="repeat-progress-row">
+                                    <div class="rep-dots" id="repDotsContainer">
+                                        <!-- Dots dinámicos -->
+                                    </div>
+                                    <div class="timer-countdown" id="timerCountdown">
+                                        <div class="countdown-bar" id="countdownBar"></div>
+                                        <span id="countdownText"></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Controles del Reproductor -->
+                            <div class="player-controls">
+                                <button id="btnPrevPhrase" class="btn icon-btn" title="Frase Anterior (Flecha Izquierda)">
+                                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="19 20 9 12 19 4 19 20"></polygon><line x1="5" y1="19" x2="5" y2="5"></line></svg>
+                                </button>
+                                
+                                <button id="btnTogglePlay" class="btn primary play-main-btn" title="Iniciar / Pausar (Espacio)">
+                                    <svg id="playIcon" width="26" height="26" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                                    <svg id="pauseIcon" class="hidden" width="26" height="26" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>
+                                    <span id="playButtonText">Iniciar Práctica</span>
+                                </button>
+
+                                <button id="btnReplayPhrase" class="btn icon-btn" title="Repetir frase actual (R)">
+                                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"></polyline><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path></svg>
+                                </button>
+
+                                <button id="btnNextPhrase" class="btn icon-btn" title="Siguiente Frase (Flecha Derecha)">
+                                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 4 15 12 5 20 5 4"></polygon><line x1="19" y1="5" x2="19" y2="19"></line></svg>
+                                </button>
+
+                                <!-- Selector de Velocidad (Estilo YouTube) -->
+                                <div class="speed-menu-container">
+                                    <button id="btnSpeedSelector" class="btn icon-btn speed-selector-btn" title="Velocidad de reproducción (Shift + < / >)">
+                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                                        <span id="playerSpeedBadge" class="speed-badge-text">1.0x</span>
+                                    </button>
+                                    <div id="speedMenuModal" class="speed-menu-popover hidden">
+                                        <div class="speed-menu-title">Velocidad de reproducción</div>
+                                        <button class="speed-item" data-speed="0.5">0.5x</button>
+                                        <button class="speed-item" data-speed="0.75">0.75x</button>
+                                        <button class="speed-item active" data-speed="1.0">1.0x (Normal) <span class="check-mark">✓</span></button>
+                                        <button class="speed-item" data-speed="1.25">1.25x</button>
+                                        <button class="speed-item" data-speed="1.5">1.5x</button>
+                                        <button class="speed-item" data-speed="1.75">1.75x</button>
+                                        <button class="speed-item" data-speed="2.0">2.0x</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <p class="shortcuts-legend">Atajos: <strong>Espacio</strong> (Pausar/Reanudar) • <strong>← / →</strong> (Anterior / Siguiente) • <strong>R</strong> (Repetir) • <strong>Shift + &lt; / &gt;</strong> (Velocidad) • <strong>F</strong> (Maximizar)</p>
+                        </div>
+                    </div>
+
+                    <!-- PANE 2: Generar y Exportar MP3 -->
+                    <div class="mode-pane" id="paneExportMp3">
+                        <div class="export-box">
+                            <p class="export-intro">
+                                Compila todas las frases con sus repeticiones y silencios en un archivo <strong>output_pronunciation.mp3</strong> para llevar en tu celular o reproductor.
+                            </p>
+                            
+                            <button id="btnGenerateMp3" class="btn primary generate-btn">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v10m0 0 4-4m-4 4-4-4"></path><path d="M2 17l.62 2.48A2 2 0 0 0 4.56 21h14.88a2 2 0 0 0 1.94-1.52L22 17"></path></svg>
+                                Generar Archivo MP3 Completo
+                            </button>
+
+                            <!-- Barra de Progreso de Generación -->
+                            <div class="generation-progress-box hidden" id="generationProgressBox">
+                                <div class="progress-info-row">
+                                    <span id="genProgressStatus">Iniciando generación...</span>
+                                    <span id="genProgressPercent">0%</span>
+                                </div>
+                                <div class="progress-bar-track">
+                                    <div class="progress-bar-fill" id="genProgressBarFill"></div>
+                                </div>
+                                <span class="current-gen-phrase" id="genCurrentPhrase"></span>
+                            </div>
+
+                            <!-- Resultado / Descarga Final -->
+                            <div class="generation-result-box hidden" id="generationResultBox">
+                                <div class="result-success-badge">
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#34c759" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                                    <h3>¡Audio generado con éxito!</h3>
+                                </div>
+                                <div class="result-meta" id="resultMetaInfo">
+                                    <!-- Duración y tamaño -->
+                                </div>
+                                
+                                <div class="final-audio-player">
+                                    <audio id="finalAudioPlayer" controls></audio>
+                                </div>
+
+                                <div class="result-download-row">
+                                    <a id="btnDownloadMp3" class="btn primary download-action-btn" download="output_pronunciation.mp3">
+                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                                        Descargar output_pronunciation.mp3
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Audio Element Oculto para Preview Rápido -->
+    <audio id="previewAudioElement" style="display: none;"></audio>
+
+    <script src="pronunciation.js?v=2.5"></script>
+</body>
+</html>

@@ -1,0 +1,15 @@
+fastapi
+uvicorn
+pydantic
+python-multipart
+PyMuPDF
+EbookLib
+beautifulsoup4
+edge-tts
+pydub
+imageio-ffmpeg
+audioop-lts
+gTTS
+requests
+soundfile
+kokoro-onnx

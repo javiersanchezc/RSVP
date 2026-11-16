@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RSVP - Rapid Serial Visual Presentation</title>
+    <!-- Use Google Fonts (Inter) -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css?v=2.2">
+</head>
+<body>
+    <div class="app-container">
+        <header>
+            <div style="display: flex; justify-content: flex-end; margin-bottom: 0.5rem;">
+                <a href="/pronunciation" class="btn secondary" style="font-size: 0.85rem; padding: 0.4rem 0.85rem; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; border-radius: 20px;">
+                    🗣️ Ir a Pronunciación &amp; Shadowing &rarr;
+                </a>
+            </div>
+            <h1>RSVP<span class="highlight">Reader</span></h1>
+            <p>Velocidad de asimilación óptima.</p>
+        </header>
+
+        <main>
+            <!-- Biblioteca / Historial -->
+            <section class="glass-panel library-section" id="librarySection">
+                <h2>📚 Tus Libros</h2>
+                <div class="library-grid" id="libraryGrid">
+                    <p class="empty-state">No tienes libros guardados aún.</p>
+                </div>
+            </section>
+
+            <!-- Panel de Configuración e Input -->
+            <section class="glass-panel input-section">
+                <div id="inputHeader">
+                    <h2>1. Introduce tu texto o sube un libro</h2>
+                </div>
+                
+                <div id="inputControls">
+                    <textarea id="textInput" placeholder="Pega tu artículo, nota o libro aquí..."></textarea>
+                    
+                    <div class="file-upload-row">
+                        <label for="fileInput" class="btn secondary">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 8px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                            Elegir archivo (PDF, EPUB)
+                        </label>
+                        <input type="file" id="fileInput" accept=".pdf,.epub" style="display: none;">
+                        <span id="fileNameDisplay" class="file-name">Ningún archivo seleccionado</span>
+                    </div>
+                </div>
+
+                <div id="contextView" class="context-view hidden"></div>
+
+                <div class="controls-row">
+                    <div class="control-group">
+                        <label for="wpmSlider">Velocidad: <span id="wpmValue">300</span> WPM</label>
+                        <input type="range" id="wpmSlider" min="100" max="1000" step="10" value="300">
+                    </div>
+                    <button id="btnPrepare" class="btn primary">Procesar</button>
+                    <button id="btnReset" class="btn secondary hidden">Cargar Otro</button>
+                </div>
+            </section>
+
+            <!-- Panel de Lectura (RSVP) -->
+            <section class="glass-panel reader-section" id="readerSection">
+                <button id="btnFullscreen" class="btn icon-btn fullscreen-btn" title="Pantalla Completa">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path></svg>
+                </button>
+                <div class="progress-container">
+                    <div class="progress-bar" id="progressBar"></div>
+                </div>
+
+                <div class="rsvp-display" id="rsvpDisplay">
+                    <span id="sectionDisplay" class="section-badge hidden"></span>
+                    <!-- Las guías visuales -->
+                    <div class="guide top-guide"></div>
+                    <div class="guide bottom-guide"></div>
+
+                    <!-- El contenedor de la palabra actual -->
+                    <div class="word-container">
+                        <span class="word-left" id="wordLeft"></span>
+                        <span class="word-pivot" id="wordPivot">A</span>
+                        <span class="word-right" id="wordRight">QUÍ</span>
+                    </div>
+                </div>
+
+                <!-- Controles de Reproducción -->
+                <div class="playback-controls">
+                    <button id="btnPrev" class="btn icon-btn" title="Retroceder 10 palabras" disabled>
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="19 20 9 12 19 4 19 20"></polygon><line x1="5" y1="19" x2="5" y2="5"></line></svg>
+                    </button>
+                    <button id="btnPlayPause" class="btn play-btn" disabled>
+                        <svg id="iconPlay" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                        <svg id="iconPause" class="hidden" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>
+                    </button>
+                    <button id="btnStop" class="btn icon-btn" title="Detener" disabled>
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect></svg>
+                    </button>
+                </div>
+                
+                <div class="navigation-controls" style="display: flex; justify-content: center; margin-top: 1.5rem;">
+                    <select id="sectionSelector" class="section-selector hidden" title="Saltar a la página/capítulo">
+                        <option value="0">Cargando secciones...</option>
+                    </select>
+                </div>
+                
+                <div class="stats-row">
+                    <span>Palabras: <span id="wordCountDisplay">0 / 0</span></span>
+                    <span>Tiempo est.: <span id="timeEstDisplay">0m 0s</span></span>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Toast de Notificaciones -->
+    <div id="toast" class="toast"></div>
+
+    <script src="app.js?v=2.2"></script>
+</body>
+</html>
